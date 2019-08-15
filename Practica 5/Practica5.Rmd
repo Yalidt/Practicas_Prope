@@ -1,0 +1,220 @@
+---
+title: "Practica5"
+output: html_document
+---
+```{r,echo=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+Ejercicios
+1) Considérese el experimento de lanzar 20 veces una moneda y obtener la secuencia: {H,T,H,H,T,H,H,T,H,H,T,T,H,T,T,T,H,H,H,T}.
+a)a) Tabular los resultados del experimento anterior encontrando las proporciones de H y T en los 20 lanzamientos.
+```{r}
+library(prob)
+```
+```{r}
+S=c("H","T","H","H","T","H","H","T","H","H","T","T","H","T","T","T","H","H","H","T")
+resul_posibles = c("H","T")
+etiquetas=c("Head","Tail")
+frec=factor(S, levels=resul_posibles, labels=etiquetas)
+frecabs<-table(frec)
+frecabs
+prop<-prop.table(table(frec))
+prop
+```
+b) Graficar las proporciones con barplot y plot.
+```{r}
+par(mfcol=c(1,2)) #subplots
+par(cex=0.7) # size of labels
+plot(frecabs, ylab='Frecuencia absoluta')
+plot(prop, ylab='Frecuencia relativa')
+abline(h = .55, col='red')
+```
+2) Para el dataset analizado anteriormente y que se creó: log_mammals realizar:
+a)Para datos cuantitativos es común realizar diagramas de tallos y hojas. Investigar la interpretación de estos diagramas y usar la función stem del paquete base de R para realizar tales diagramas a las variables log_body y log_brain e interpretarlas.
+```{r}
+library(MASS)
+head(mammals)
+log_mammals <- log(mammals)
+colnames(log_mammals) <- c('log_body', 'log_brain')
+head(log_mammals)
+```
+```{r}
+body=(log_mammals$log_body)
+brain=(log_mammals$log_brain)
+stem(body, scale = 1, width = 60, atom = 1e-08)
+stem(brain, scale = 1, width = 60, atom = 1e-08)
+```
+Interpretacón-Nos ayuda a tener una idea de como se iran distribuyendo los dtaos, si hay asimetria o no. Además podemos ver cuales son los datos atípicos, en el caso de los ejemplo que representamos no hay como tal datos atípicos.Al parecer hay mas dispersión en la variable de body que en la de brain.
+
+b)scatterplot coloreando diferente a cada grupo que se creó: mamífero pequeño y mamífero grande con la variable size_body.
+```{r}
+mediana_body= median(log_mammals$log_body)
+log_mammals$size_body = ifelse(log_mammals$log_body >= mediana_body, "grande", "pequenio")
+#El de brain
+mediana_brain = median(log_mammals$log_brain)
+log_mammals$size_brain = ifelse(log_mammals$log_brain >= mediana_brain,"grande", "pequenio")
+head(log_mammals)
+```
+```{r}
+library(ggplot2)
+ggplot(log_mammals)+geom_point(aes(x=log_body, y=log_brain,color=log_mammals$size_body),size=1)
+```
+c) Instalar el paquete dplyr para colocar los datos en un formato long y se pueda graficar con el paquete de ggplot2 con la función gather el dataframe log_mammals. Después de instalar tal paquete, realizar mismo enunciado que a) pero con geom_points y paquete ggplot2.
+
+
+d) Calcular estadísticas como el promedio, mediana, máximo y mínimo por grupos de mamífero pequeño y mamífero grande con dplyr y funciones como group_by, sumarise y el operador %>% (pipe). Ver como ayuda: Data Wrangling with dplyr and tidyr o Data Transformation with dplyr o bien como ejemplo de uso: https://genomicsclass.github.io/book/pages/dplyr_tutorial.html u otro tutorial en la red de dplyr ¿qué mamíferos en cada grupo están en los tres primeros lugares (pensando que se ordenan de forma decreciente en log_brain)?.
+
+```{r}
+
+logmammals <-log(mammals)
+colnames(logmammals) <- c('log_body', 'log_brain')
+
+med_body= median(logmammals$log_body)
+logmammals$size_body = ifelse(logmammals$log_body >= mediana_body, "grande", "pequenio")
+#El de brain
+med_brain = median(logmammals$log_brain)
+logmammals$size_brain = ifelse(logmammals$log_brain >= mediana_brain,"grande", "pequenio")
+
+logmammals%>%group_by(size_brain)%>%summarise(prom_brain=mean(log_brain),mediana=median(log_brain),maximo=max(log_brain),minimo=min(log_brain))
+```
+
+```{r}
+logmammals%>%group_by(size_body)%>%summarise(prom_body=mean(log_body),mediana=median(log_body),maximo=max(log_body),minimo=min(log_body))
+```
+
+```{r}
+lomammals <- log(mammals)
+colnames(lomammals) <- c('log_body', 'log_brain')
+lomammals %>%select(log_brain) %>% filter(log_brain>=5)%>%head(3)
+```
+```{r}
+lomammals <- log(mammals)
+colnames(lomammals) <- c('log_body', 'log_brain')
+lomammals %>%select(log_body) %>% filter(log_body<=1)%>%head(3)
+
+```
+
+e) Crea una nueva variable r que sea el cociente entre brain y body. Ordena en orden creciente el dataset de mammals de acuerdo a esta nueva variable. ¿Qué mamíferos tienen los cocientes más grandes? 
+
+```{r}
+r_calc<-brain/body
+mammals_n<-cbind(mammals,r_calc)
+new_order <-mammals_n[order(r_calc),] 
+head(new_order)
+```
+
+¿y cuáles los más pequeños?
+```{r}
+tail(new_order)
+```
+
+f) Usando e) realiza un scatterplot de r vs body.
+
+```{r}
+colnames(new_order)<- c('n_body', 'n_brain','rcal')
+ggplot(new_order)+geom_point(aes(x=n_body, y=rcal),size=1)
+
+```
+3) Considérese el dataset randu (ejecutar ?randu para una descripción):
+
+```{r}
+?randu
+```
+
+a) Usar la función mean para calcular la media muestral en cada uno de los números que forman la tripleta: x, y, z. Asimismo usar la función var para calcular una matriz de varianzas y covarianzas muestral.
+```{r}
+sapply(randu, mean)
+```
+```{r}
+var(randu)
+```
+b) Queremos ver la distribución del promedio por renglón de cada observación del dataset randu, para esto utilizar la función de apply para calcular tal promedio, alternativamente usar rowMeans.
+
+```{r}
+means<-rowMeans(randu)
+means
+```
+c) Utilizar la función hist del paquete base para calcular un histograma con los breaks definido por tal función.
+```{r}
+hist(means)
+```
+d) Calcular sus propios breaks y volver a graficar el histograma con hist y con geom_histogram del paquete ggplot2
+
+```{r}
+minimo<-min(means)-.1
+max<-max(means)+.1
+mis_cortes<-seq(minimo,max,by=.07)
+hist(means,breaks=mis_cortes,main="Histograma con cortes",col="orange")
+```
+```{r}
+means_2<-data.frame(means)
+ggplot(means_2)+geom_histogram(aes(x=means),breaks=c(mis_cortes))
+```
+e) Utilizar la función qqnorm para comparar los cuantiles de una distribución normal con la distribución de las medias muestrales obtenidos en el inciso b). Sólo de forma visual ¿qué se puede concluir sobre la distribución de las medias muestrales calculadas en b)? (puedes añadir una línea al gráfico con qqline).
+
+```{r}
+qqnorm(means,xlab="Theorical Quantiles",ylab="Sample Quantiles")
+```
+4) Realizar gráficas con el comando qqplot para comparar 2 distribuciones de datos, por ejemplo:
+
+```{r}
+n<-500
+set.seed(2000)
+par(cex=.8) #control size of labels
+datos<- qqplot(rnorm(n), qunif(ppoints(length(randu$x))), cex=.1, xlab='', ylab='')
+```
+Los cuantiles representan convexidad y concavidad.
+
+2_distribuciones_comunes
+Ejercicios
+1) Supóngase que el tiempo (en minutos) que una persona espera el Metrobús los días de semana sigue una distribución uniforme dada por,
+fx{1/12 si 0<=x<=12, o 0 e.c}
+a) ¿Cuál es la probabilidad que una persona espere menos de 6 minutos?.
+```{r}
+a=0
+b=12
+punif(6,a,b)
+```
+b) ¿Su tiempo medio de espera? ¿su desviación estándar?.
+```{r}
+tiempo_medio=(a+b)/2
+tiempo_medio
+desv_est=sqrt(((b-a)**2)/12)
+desv_est
+```
+
+2) Considérese lanzamientos de una moneda no cargada. Sea X la variable aleatoria que cuenta el número de águilas en 10 lanzamientos. Calcular en R la probabilidad P(X >=3) con la función pbinom y dbinom, el número medio de águilas y su desviación estándar.
+```{r}
+#Se requiere el extremo de la cola derecha
+proba_x3<-1-pbinom(3,10,.5)
+proba_x3
+```
+```{r}
+#Promedio Aguilas
+n=10
+p=.5
+prom_aguilas<-n*p
+prom_aguilas
+```
+```{r}
+desv_aguilas<-sqrt(n*p*(1-p))
+desv_aguilas
+```
+3) Considérese una población de votantes en la ciudad de México. Se reporta que la proporción de votantes que favorecen al candidato del partido Naranja es igual a 0.40. Dada una muestra aleatoria de 200 votantes, ¿cuál es la probabilidad de que más de la mitad de ellos tengan intención de voto por el candidato naranja? Usar:
+```{r}
+p_favor=.4
+p_contra=.6
+n_votantes=200
+mas_mitad_favor<-1-pbinom(100,n_votantes,p_favor)
+mas_mitad_favor
+```
+b) El teorema del límite central y pnorm considerando lo que se conoce como corrección por continuidad: si B es variable aleatoria binomial con mu y sigma entonces P(B=k) = P(k-0.5<=X<k+0.5) con X variable aleatoria normal N(mu,sigma) y k un número entero no negativo.
+
+```{r}
+mu=n_votantes*p_favor
+desv<-sqrt(n_votantes*p_favor*(1-p_contra))
+teo<-pnorm(100,mu,desv,lower.tail = F)
+teo
+```
+
