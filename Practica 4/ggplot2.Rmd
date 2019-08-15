@@ -1,0 +1,80 @@
+---
+title: "7_variables_aleatorias"
+output: html_document
+---
+Los siguientes ejercicios realizarlos en R y con ggplot2:
+5) Encontrar los histogramas de probabilidad para las distribuciones asociadas a las siguientes variables aleatorias:
+a) El número de águilas que aparecen cuando lanzamos tres monedas al aire.
+```{r}
+library(prob)
+library(ggplot2)
+```
+
+```{r}
+S <-tosscoin(3, makespace = TRUE)
+S
+```
+```{r}
+Zero_H <-Prob(S, isrep(S, vals='H', nrep=0))
+One_H<-Prob(S, isrep(S, vals='H', nrep=1))
+Two_H<-Prob(S, isrep(S, vals='H', nrep=2))
+Three_H<-Prob(S, isrep(S, vals='H', nrep=3))
+df<-data.frame(Zero_H,One_H,Two_H,Three_H)
+df
+```
+```{r}
+df_1 = data.frame(evento = c('Zero H', 'One H','Two H','Three H'), X = c(0,1,2,3), probabilidad=c(.125,.375,.375,.125))
+ggplot(data = df_1, aes(x=X, y=probabilidad, fill=evento)) + 
+geom_col(width=1)+
+ggtitle('Probabilidades # de aguilas al lanzar 2 monedas')
+```
+b) La suma de los números de las caras cuando se lanzan dos dados.
+
+```{r}
+J <- rolldie(2, nsides = 6, makespace = TRUE)
+print(head(J))
+```
+```{r}
+S <- addrv(J, U =X1+X2)
+marginal(S,vars="U")
+marginal
+```
+
+```{r}
+df_1 = data.frame(suma =c('Two','Three','Four','Five','Six','Seven','Eigth','Nine','Ten','Eleven','Twelve'),X=c(2,3,4,5,6,7,8,9,10,11,12), probabilidad=c(.02777778,0.05555556,0.08333333,0.11111111,0.13888889,0.16666667,0.13888889,0.11111111,0.08333333,0.05555556,0.02777778	))
+ggplot(data = df_1, aes(x=X, y=probabilidad, fill=suma)) + 
+geom_col(width=1)+
+ggtitle('Probas de suma de num de lanzar 2 dados')
+```
+
+6) Se venden 8000 boletos para una rifa de  $5000.00  y cada boleto cuesta  2.00.
+a) Encontrar la ganancia esperada del comprador de un boleto.
+
+```{r}
+n_boleto=8000
+costo_boleto=2
+premio=5000
+gan_esperada=(1/n_boleto)*premio
+perdida_esperada=((n_boleto-1)/n_boleto)*(-costo_boleto)
+df<-data.frame(gan_esperada,perdida_esperada)
+df
+```
+
+b) Hacer la gráfica de la ganancia esperada que tiene una compradora en términos de un número de boletos  𝑛 .
+```{r}
+df_2 = data.frame(evento=c('Ganancia_esp','Perdida_esp'), X = c(0,1), vesperado=c(.625,-1.99975))
+ggplot(data=df_2,aes(x=X, y=vesperado, fill=evento)) + 
+geom_col(width=1) +
+ggtitle('Histograma valor esperado Ganancia/perdida')
+```
+c) ¿Cuál debería de ser el premio mínimo para que se pudiese garantizar “salir a mano” al comprar todos los boletos.
+```{r}
+n_bol=8000 #Boletos comprados
+prem_min=16000
+gan_esperada=(n_bol/n_boleto)*prem_min
+ganancia_0=gan_esperada-(n_bol*costo_boleto)
+ganancia_0
+```
+
+
+
