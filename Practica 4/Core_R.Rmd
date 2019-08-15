@@ -1,0 +1,155 @@
+---
+title: "2_core_R"
+output: html_document
+---
+Vectores
+```{r}
+y<-c(30,2,4)
+z<-c(40,1,0)
+z
+y
+```
+```{r}
+set.seed(1994)
+w <- rpois(20, lambda = .61)
+w
+```
+```{r}
+z-5
+print(z**2)
+```
+
+Estatus de casos legales
+```{r}
+totalcasos<-c(69,66,126,78,135,117,180,196,249)
+numcasos_abierto<-c(33,46,67,51,74,55,107,136,153)
+numcasos_cerrado<-c(36,20,59,27,61,62,73,60,95)
+length(numcasos_abierto)
+```
+```{r}
+#Promedio
+mean(numcasos_cerrado)
+mean(numcasos_abierto)
+```
+```{r}
+cambio_rel<-(numcasos_cerrado-numcasos_abierto)/totalcasos
+cambio_rel
+```
+```{r}
+year<-seq(from=2000,to=2008, by=1)
+
+```
+
+```{r}
+data.frame(year,numcasos_abierto,numcasos_cerrado,cambio_rel)
+```
+```{r}
+ineficiencia<- numcasos_cerrado < numcasos_abierto
+print(ineficiencia)
+table(ineficiencia)
+```
+
+```{r}
+barplot(rev(cambio_rel), 
+        xlab="Casos Legales del 2000 al 2009",
+        ylab="Proporcion de casos cerrados", 
+        col='steelblue')
+```
+
+```{r}
+plot(numcasos_abierto, numcasos_cerrado, pch=3, col='purple')
+```
+Funciones
+```{r}
+varianza<- function(x){
+    v <- var(x)
+    n <- NROW(x)
+    v*(n-1)/n}
+prueba<-c(5,15,69)
+varianza(prueba)
+```
+Integracion
+```{r}
+f <- function(x, a=2)
+  (x**a)*log10(x)
+x <- seq(0,1,.2)
+integrate(f, lower = 0, upper = 1, a=2)
+```
+```{r}
+curve((x**2)*log10(x), from = 0, to=1, ylab='f(x)')
+```
+Vectores y Matrices
+
+```{r}
+probs <- c(.35,.15,.20,.30)
+P <- matrix(probs, nrow=2, ncol=2)
+P
+```
+```{r}
+colnames(P) <- c( "fumador", "no fumador")
+row.names(P)<-c( "Cancer", "no Cancer")
+P
+```
+```{r}
+apply(P, MARGIN=1, FUN=sum)
+```
+```{r}
+P2 <- P %*% P
+P2
+```
+```{r}
+P^4
+P2[1,2]
+```
+Data Frames
+```{r}
+#Average Heights and Weights for American Women
+print(head(mtcars))
+```
+```{r}
+print(dim(mtcars))
+print(names(mtcars))
+str(mtcars)
+```
+Missing values
+```{r}
+any(is.na(mtcars))
+summary(mtcars)
+```
+
+Extract data from a data frame
+```{r}
+mtcars["Valiant", "wt"]
+mtcars["Valiant", ]
+```
+Extract a variable using \$
+```{r}
+print(mtcars$hp)
+```
+Histograms
+```{r}
+hist(mtcars$wt)
+library(MASS)
+truehist(mtcars$wt, col='lightcyan')
+```
+
+Attaching a data frame
+```{r}
+attach(mtcars)
+car.pct <- 100 * mpg / (mpg + cyl + hp)
+print(head(car.pct))
+```
+```{r}
+#Para borrar variables
+detach(mtcars)
+rm(car.pct)
+```
+Correlacion
+```{r}
+attach(mtcars)
+plot(mpg, wt)
+```
+```{r}
+cor(mpg, wt)
+```
+

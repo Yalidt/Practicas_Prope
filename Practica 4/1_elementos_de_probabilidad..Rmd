@@ -1,0 +1,16 @@
+---
+title: "1_elementos_de_probabilidad"
+output: html_document
+---
+2)Lanzamiento de una moneda cargada Supóngase que P(soll)=.7 y P(águila)=.3 entonces:
+
+```{r}
+library('prob')
+probspace(tosscoin(1), probs = c(0.70, 0.30))
+```
+Ejercicio: ¿cómo calcular la probabilidad anterior con la función urnsamples?
+```{r}
+S<-c("H","T")
+p<-c(0.7,0.30)
+probspace(urnsamples(S,size=1),p)
+```
